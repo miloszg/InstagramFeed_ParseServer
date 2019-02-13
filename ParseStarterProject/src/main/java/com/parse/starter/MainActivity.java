@@ -25,6 +25,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.parse.SignUpCallback;
 
 import java.util.List;
 
@@ -37,26 +38,46 @@ public class MainActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-     ParseQuery<ParseObject> query = ParseQuery.getQuery("Score");
+    // SIGN UP FORM
 
-     query.whereGreaterThan("score",50);
+    ParseUser user=new ParseUser();
 
-     query.findInBackground(new FindCallback<ParseObject>() {
-         @Override
-         public void done(List<ParseObject> list, ParseException e) {
-             if(e==null){
-                 if(list.size()>0){
-                     for(ParseObject object: list){
-                         Log.i("username",object.getString("username"));
-                         Log.i("username",Integer.toString(object.getInt("score")));
-                         object.put("score",object.getInt("score")+20);
-                         object.saveInBackground();
-                     }
-                 }
-             }
-         }
-     });
+    user.setUsername("Apollo");
+    user.setPassword("pass123");
 
+    user.signUpInBackground(new SignUpCallback() {
+        @Override
+        public void done(ParseException e) {
+            if(e == null){
+                Log.i("Sign-up ","Done")
+;            } else {
+                e.printStackTrace();
+            }
+        }
+    });
+
+    // LOGGING IN
+    ParseUser.logInInBackground("Apollo", "pass123", new LogInCallback() {
+      @Override
+      public void done(ParseUser parseUser, ParseException e) {
+        if(parseUser!=null){
+          Log.i("Logging in","Success");
+        } else {
+          e.printStackTrace();
+        }
+      }
+    });
+
+
+    // Logging out
+    ParseUser.logOut();
+
+    // CHECKING FOR USERS
+    if (ParseUser.getCurrentUser() !=null){
+      Log.i("Signed In",ParseUser.getCurrentUser().getUsername());
+    } else {
+      Log.i("Not singed in","You need to register");
+    }
 
 
     ParseAnalytics.trackAppOpenedInBackground(getIntent());
